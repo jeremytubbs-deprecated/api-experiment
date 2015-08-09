@@ -10,6 +10,7 @@ trait ApiQueryTrait {
     public function apiQuery($table, $request) {
         $params = config('api.params');
         $fitler_relations = config('api.' . $table . '.filter_relations');
+        $include_relations = config('api.' . $table . '.include_relations');
         $is_boolean = config('api.' . $table . '.is_boolean');
         $search_fields = config('api.' . $table . '.search_fields');
         $sort_fields = config('api.' . $table . '.sort_fields');
@@ -25,7 +26,17 @@ trait ApiQueryTrait {
             }
             switch ($key) {
                 case 'include':
+                    if (is_array($value)) {
+                        return ['error' => 'include request parameters should be comma delimited.'];
+                    }
                     //example ?include=category,type
+                    $split = explode(',', $value);
+                    foreach ($split as $v) {
+                        if (! in_array($v, $include_relations)) {
+                            return ['error' => 'include=' . $v . ' is not a valid request parameter.'];
+                        }
+                        $query->with($v);
+                    }
                     break;
                 case 'fields':
                     //example ?fields[category]=title
@@ -59,9 +70,13 @@ trait ApiQueryTrait {
                                 }
                             }
                             $split = explode('.', $k);
-                            $query->join($split[0], $split[0].'.id', '=', $table.'.'.str_singular($split[0]).'_id');
-                            $query->where($k, '=', $v);
-                            $query->select($table.'.*');
+                            // $query->with($split[0]));
+                            // $query->join($split[0], $split[0].'.id', '=', $table.'.'.str_singular($split[0]).'_id');
+                            // $query->where($k, '=', $v);
+                            // $query->select($table.'.*');
+                            $query->whereHas($split[0], function ($relation) use ($split, $v) {
+                                $relation->where($split[1], '=', $v);
+                            });
                         }
                     }
                     if (! is_array($value)) {

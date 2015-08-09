@@ -24,8 +24,7 @@ class ContentController extends Controller
             return response()->json($results['error'], 400);
         }
 
-        // $content = App\Models\Content::with(['type', 'category'])->paginate($offset);
-        return \Fractal::collection($results, new \App\Transformers\ContentTransformer)->responseJson(200);
+        return response()->json($results, 200);
     }
 
     /**

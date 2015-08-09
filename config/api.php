@@ -5,8 +5,8 @@ return [
 
     'contents' => [
         'public_fields' => ['title', 'description'],
-        'filter_relations' => ['types.id', 'types.slug', 'categories.id', 'categories.slug', 'users.id'],
-        'include_relations' => ['contents', 'types', 'categories', 'users'],
+        'filter_relations' => ['type.id', 'type.slug', 'categories.id', 'categories.slug', 'users.id'],
+        'include_relations' => ['type', 'category', 'user'],
         'is_boolean' => ['featured'],
         'search_fields' => ['title', 'description'],
         'sort_fields' => ['title', 'publishedAt'],

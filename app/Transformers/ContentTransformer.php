@@ -7,13 +7,16 @@ use League\Fractal\TransformerAbstract;
 
 class ContentTransformer extends TransformerAbstract
 {
+    /**
+     * Turn this item object into a generic array
+     *
+     * @return array
+     */
     public function transform(Content $content)
     {
-        $fields = ['title'];
-
         return [
+            'type'    => 'contents',
             'id'      => (int) $content->id,
-            'type'    => $content->type['title'],
             'attributes' => [
                 [
                     'title'   => $content->title,
