@@ -33,6 +33,8 @@ class ContentController extends Controller
             return response()->json($results['error'], 400);
         }
 
+        //return $results;
+
         $results = $this->transformer->transform($results);
 
         return response()->json($results, 200);

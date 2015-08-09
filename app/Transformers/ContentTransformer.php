@@ -11,7 +11,21 @@ class ContentTransformer
      */
     public function transform($contents)
     {
+        $include_relations = config('api.contents.include_relations');
+
         foreach ($contents as $content) {
+            $included = null;
+            foreach ($include_relations as $relation) {
+                if (isset($content->$relation)) {
+                    $included[]  = [
+                        'type' => $relation,
+                        'id' => $content->$relation->id,
+                        'name' => $content->$relation->title,
+                        'description' => $content->$relation->description
+                    ];
+                }
+            }
+
             $data[] = [
                 'type'    => 'contents',
                 'id'      => (int) $content->id,
@@ -33,13 +47,21 @@ class ContentTransformer
                         ]
                     ]
                 ],
+                'included' => $included,
                 'links'   => [
                     [
-                        'self' => '/contents/'.$content->id,
+                        'self' => '/api/contents/'.$content->id,
                     ]
                 ],
             ];
-        }
-        return ['data' => $data];
+        };
+
+        $links[] = [
+            'self' => '/api/contents?' . $_SERVER['QUERY_STRING'],
+            'next' => $contents->nextPageUrl() . '&' . $_SERVER['QUERY_STRING'],
+            'last' => '/api/contents?page='.$contents->lastPage() . '&' . $_SERVER['QUERY_STRING']
+        ];
+
+        return ['links' => $links, 'data' => $data];
     }
 }
