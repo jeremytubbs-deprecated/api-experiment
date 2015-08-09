@@ -17,6 +17,7 @@ class ContentTransformer extends TransformerAbstract
             'attributes' => [
                 [
                     'title'   => $content->title,
+                    'description'   => $content->description
                 ]
             ],
             'links'   => [

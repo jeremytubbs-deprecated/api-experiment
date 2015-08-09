@@ -8,9 +8,9 @@ return [
         'filter_relations' => ['types.id', 'types.slug', 'categories.id', 'categories.slug', 'users.id'],
         'include_relations' => ['contents', 'types', 'categories', 'users'],
         'is_boolean' => ['featured'],
-        'search_fields' => ['title', 'description', 'markdown'],
-        'sort_fields' => ['title', 'published_at'],
-        'sort_default' => ['published_at']
+        'search_fields' => ['title', 'description'],
+        'sort_fields' => ['title', 'publishedAt'],
+        'sort_default' => ['publishedAt']
     ],
 
     'users' => [

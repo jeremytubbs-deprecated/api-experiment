@@ -20,10 +20,12 @@ class ContentController extends Controller
     {
         $results = $this->apiQuery('contents', $request->all());
 
-        return $results;
+        if (isset($results['error'])) {
+            return response()->json($results['error'], 400);
+        }
 
-        $content = App\Models\Content::with(['type', 'category'])->paginate($offset);
-        return Fractal::collection($content, new App\Transformers\ContentTransformer)->responseJson(200);
+        // $content = App\Models\Content::with(['type', 'category'])->paginate($offset);
+        return \Fractal::collection($results, new \App\Transformers\ContentTransformer)->responseJson(200);
     }
 
     /**

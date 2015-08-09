@@ -3,19 +3,25 @@
 namespace App\Traits;
 
 use Illuminate\Support\Facades\DB;
+use App\Models\Content;
 
 trait ApiQueryTrait {
 
-	public function apiQuery($table, $request) {
+    public function apiQuery($table, $request) {
         $params = config('api.params');
         $fitler_relations = config('api.' . $table . '.filter_relations');
         $is_boolean = config('api.' . $table . '.is_boolean');
         $search_fields = config('api.' . $table . '.search_fields');
         $sort_fields = config('api.' . $table . '.sort_fields');
+
+        // TODO: Make Eloquent Dynamic?
+        if ($table == 'contents') $query = Content::select();
+        // $query = DB::table($table);
+
         // check that all params are valid.
         foreach ($request as $key => $value) {
             if (! in_array($key, $params)) {
-                return response()->json($key . ' is not a valid request parameter.', 400);
+                return ['error' => $key . ' is not a valid request parameter.'];
             }
             switch ($key) {
                 case 'include':
@@ -29,26 +35,37 @@ trait ApiQueryTrait {
                     if (is_array($value)) {
                         foreach ($value as $k => $v) {
                             if (! in_array($k, $search_fields)) {
-                                return response()->json('q[' . $k . '] is not a valid request parameter.', 400);
+                                return ['error' => 'q[' . $k . '] is not a valid request parameter.'];
                             }
+                            $query->where($table.'.'.$k, 'LIKE', "%$v%");
                         }
                     }
                     // example: ?q=hello
                     // will always pass but may return 'no results'
+                    if (! is_array($value)) {
+                        // foreach ($search_fields as $v) {
+                        //     $query->orWhere($table.'.'.$v, 'LIKE', "%$value%");
+                        // }
+                        return ['error' => 'q request parameter must be an array.'];
+                    }
                     break;
                 case 'filter':
-                    // example: ?filter[users.id]=2
+                    // example: ?filter[users.id]=2 || ?filter[categories.slug]=art
                     if (is_array($value)) {
                         foreach ($value as $k => $v) {
                             if (preg_match("/\./", $k)) {
                                 if (! in_array($k, $fitler_relations)) {
-                                    return response()->json('filter[' . $k . '] is not a valid request parameter.', 400);
+                                    return ['error' => 'filter[' . $k . '] is not a valid request parameter.'];
                                 }
                             }
+                            $split = explode('.', $k);
+                            $query->join($split[0], $split[0].'.id', '=', $table.'.'.str_singular($split[0]).'_id');
+                            $query->where($k, '=', $v);
+                            $query->select($table.'.*');
                         }
                     }
                     if (! is_array($value)) {
-                        return response()->json('filter request parameter must be an array.', 400);
+                        return ['error' => 'filter request parameter must be an array.'];
                     }
                     break;
                 case 'is':
@@ -56,46 +73,56 @@ trait ApiQueryTrait {
                     if (is_array($value)) {
                         foreach ($value as $k => $v) {
                             if (! in_array($k, $is_boolean)) {
-                                return response()->json('is[' . $k . '] is not a valid request parameter.', 400);
+                                return ['error' => 'is[' . $k . '] is not a valid request parameter.'];
                             }
                             $vl = strtolower($v);
                             if ($vl != 'true' && $vl != 'false') {
-                                return response()->json('is[' . $k . ']='. $v .' is not a valid request parameter.', 400);
+                                return ['error' => 'is[' . $k . ']='. $v .' is not a valid request parameter.'];
                             }
+                            $query->where($table.'.'.$vl, '=', $k);
                         }
                     }
                     // example: ?is=!featured || ?is=featured
                     if (! is_array($value)) {
                         $vl = (substr($value, 0, 1) == '!') ? substr($value, 1) : $value;
+                        $boolean = (substr($value, 0, 1) == '!') ? 0 : 1;
                         if (! in_array($vl, $is_boolean)) {
-                            return response()->json('is=' . $value . ' is not a valid request parameter.', 400);
+                            return ['error' => 'is=' . $value . ' is not a valid request parameter.'];
                         }
+                        $query->where($table.'.'.$vl, '=', $boolean);
                     }
                     break;
                 case 'sort':
-                    // example: ?sort[publishedAt]=true
+                    // example: ?sort[publishedAt]=desc || ?sort[publishedAt]=asc
                     if (is_array($value)) {
                         foreach ($value as $k => $v) {
+                            $k = snake_case($k);
                             if (! in_array($k, $sort_fields)) {
-                                return response()->json('sort[' . $k . '] is not a valid request parameter.', 400);
+                                return ['error' => 'filter request parameter must be an array.'];
                             }
                             $vl = strtolower($v);
-                            if ($vl != 'true' && $vl != 'false') {
-                                return response()->json('sort[' . $k . ']='. $v .' is not a valid request parameter.', 400);
+                            if ($vl != 'desc' && $vl != 'asc') {
+                                return ['error' => 'sort[' . $k . ']='. $v .' is not a valid request parameter.'];
                             }
+                            $query->orderBy($table.'.'.$k, $vl);
                         }
                     }
                     // example: ?sort=-publishedAt || ?sort=published
                     if (! is_array($value)) {
                         $vl = (substr($value, 0, 1) == '-') ? substr($value, 1) : $value;
+                        $vl = snake_case($vl);
+                        $direction = (substr($value, 0, 1) == '-') ? 'desc' : 'asc';
                         if (! in_array($vl, $sort_fields)) {
-                            return response()->json('sort=' . $value . ' is not a valid request parameter.', 400);
+                            return ['error' => 'sort=' . $value . ' is not a valid request parameter.'];
                         }
+                        $query->orderBy($table.'.'.$vl, $direction);
                     }
                     break;
             }
         }
 
+        $request = $query->paginate();
+
         return $request;
-	}
+    }
 }
