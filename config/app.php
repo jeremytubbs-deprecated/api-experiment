@@ -147,7 +147,6 @@ return [
         /*
          * Vendor Service Providers...
          */
-        Cyvelnet\Laravel5Fractal\Laravel5FractalServiceProvider::class,
         Clockwork\Support\Laravel\ClockworkServiceProvider::class,
 
     ],
@@ -197,7 +196,6 @@ return [
         'URL'       => Illuminate\Support\Facades\URL::class,
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View'      => Illuminate\Support\Facades\View::class,
-        'Fractal'   => Cyvelnet\Laravel5Fractal\Facades\Fractal::class,
 
     ],
 

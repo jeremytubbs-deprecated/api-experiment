@@ -1,6 +1,6 @@
 ## API Experiment
 
-Fractal-api for content, content_type, users and categroies.
+Api for content, content_type, users and categroies.
 
 
 ### JWT

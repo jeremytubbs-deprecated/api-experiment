@@ -3,12 +3,11 @@
 namespace App\Transformers;
 
 use App\Models\Content;
-use League\Fractal\TransformerAbstract;
 
-class ContentTransformer extends TransformerAbstract
+class ContentTransformer
 {
     /**
-     * Turn this item object into a generic array
+     * Turn this object into a generic array
      *
      * @return array
      */

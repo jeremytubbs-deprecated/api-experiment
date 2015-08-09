@@ -70,10 +70,6 @@ trait ApiQueryTrait {
                                 }
                             }
                             $split = explode('.', $k);
-                            // $query->with($split[0]));
-                            // $query->join($split[0], $split[0].'.id', '=', $table.'.'.str_singular($split[0]).'_id');
-                            // $query->where($k, '=', $v);
-                            // $query->select($table.'.*');
                             $query->whereHas($split[0], function ($relation) use ($split, $v) {
                                 $relation->where($split[1], '=', $v);
                             });
