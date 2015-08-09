@@ -6,11 +6,19 @@ use Illuminate\Http\Request;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
+use App\Transformers\ContentTransformer;
+use App\Transformers\Collection;
+use App\Transformers\Item;
 
 class ContentController extends Controller
 {
     use \App\Traits\ApiQueryTrait;
 
+
+    public function __construct(ContentTransformer $transformer)
+    {
+        $this->transformer = $transformer;
+    }
     /**
      * Display a listing of the resource.
      *
@@ -18,11 +26,14 @@ class ContentController extends Controller
      */
     public function index(Request $request)
     {
-        $results = $this->apiQuery('contents', $request->all());
+        $params = $request->all();
+        $results = $this->apiQuery('contents', $params);
 
         if (isset($results['error'])) {
             return response()->json($results['error'], 400);
         }
+
+        $results = $this->transformer->transform($results);
 
         return response()->json($results, 200);
     }

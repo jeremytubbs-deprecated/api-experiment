@@ -2,8 +2,6 @@
 
 namespace App\Transformers;
 
-use App\Models\Content;
-
 class ContentTransformer
 {
     /**
@@ -11,22 +9,37 @@ class ContentTransformer
      *
      * @return array
      */
-    public function transform(Content $content)
+    public function transform($contents)
     {
-        return [
-            'type'    => 'contents',
-            'id'      => (int) $content->id,
-            'attributes' => [
-                [
+        foreach ($contents as $content) {
+            $data[] = [
+                'type'    => 'contents',
+                'id'      => (int) $content->id,
+                'attributes' => [
                     'title'   => $content->title,
                     'description'   => $content->description
-                ]
-            ],
-            'links'   => [
-                [
-                    'self' => '/contents/'.$content->id,
-                ]
-            ],
-        ];
+                ],
+                'relationships' => [
+                    'type' => [
+                        'data' => [
+                            'id' => $content->type_id,
+                            'type' => 'type'
+                        ]
+                    ],
+                    'category' => [
+                        'data' => [
+                            'id' => $content->category_id,
+                            'type' => 'category'
+                        ]
+                    ]
+                ],
+                'links'   => [
+                    [
+                        'self' => '/contents/'.$content->id,
+                    ]
+                ],
+            ];
+        }
+        return ['data' => $data];
     }
 }
