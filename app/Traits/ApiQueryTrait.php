@@ -90,7 +90,8 @@ trait ApiQueryTrait {
                             if ($vl != 'true' && $vl != 'false') {
                                 return ['error' => 'is[' . $k . ']='. $v .' is not a valid request parameter.'];
                             }
-                            $query->where($table.'.'.$vl, '=', $k);
+                            $boolean = ($vl != 'true') ? 0 : 1;
+                            $query->where($table.'.'.$k, '=', $boolean);
                         }
                     }
                     // example: ?is=!featured || ?is=featured
