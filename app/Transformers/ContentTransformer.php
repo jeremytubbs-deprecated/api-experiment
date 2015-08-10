@@ -20,8 +20,10 @@ class ContentTransformer
                     $included[]  = [
                         'type' => $relation,
                         'id' => $content->$relation->id,
-                        'name' => $content->$relation->title,
-                        'description' => $content->$relation->description
+                        'attributes' => [
+                            'name' => $content->$relation->title,
+                            'description' => $content->$relation->description
+                        ]
                     ];
                 }
             }
@@ -58,8 +60,8 @@ class ContentTransformer
 
         $links[] = [
             'self' => '/api/contents?' . $_SERVER['QUERY_STRING'],
-            'next' => $contents->nextPageUrl() . '&' . $_SERVER['QUERY_STRING'],
-            'last' => '/api/contents?page='.$contents->lastPage() . '&' . $_SERVER['QUERY_STRING']
+            'next' => $contents->nextPageUrl() ? $contents->nextPageUrl(). '&' . $_SERVER['QUERY_STRING'] : null,
+            'last' => $contents->lastPage() > 1 ? '/api/contents?page='.$contents->lastPage() . '&' . $_SERVER['QUERY_STRING'] : null
         ];
 
         return ['links' => $links, 'data' => $data];
