@@ -7,7 +7,7 @@ use App\Models\Content;
 
 trait ApiQueryTrait {
 
-    public function apiQuery($table, $request) {
+    public function apiQuery($model, $table, $request) {
         $params = config('api.params');
         $fitler_relations = config('api.' . $table . '.filter_relations');
         $include_relations = config('api.' . $table . '.include_relations');
@@ -15,9 +15,9 @@ trait ApiQueryTrait {
         $search_fields = config('api.' . $table . '.search_fields');
         $sort_fields = config('api.' . $table . '.sort_fields');
 
-        // TODO: Make Eloquent Dynamic?
-        if ($table == 'contents') $query = Content::select();
+        // $query = Content::select();
         // $query = DB::table($table);
+        $query = \App::make($model)->select();
 
         // check that all params are valid.
         foreach ($request as $key => $value) {
@@ -119,7 +119,7 @@ trait ApiQueryTrait {
                             $query->orderBy($table.'.'.$k, $vl);
                         }
                     }
-                    // example: ?sort=-publishedAt || ?sort=published
+                    // example: ?sort=-publishedAt || ?sort=publishedAt
                     if (! is_array($value)) {
                         $vl = (substr($value, 0, 1) == '-') ? substr($value, 1) : $value;
                         $vl = snake_case($vl);

@@ -60,7 +60,7 @@ class ContentTransformer
 
         $links[] = [
             'self' => '/api/contents?' . $_SERVER['QUERY_STRING'],
-            'next' => $contents->nextPageUrl() ? $contents->nextPageUrl(). '&' . $_SERVER['QUERY_STRING'] : null,
+            'next' => $contents->currentPage() < $contents->lastPage() ? '/api/contents?page='. ($contents->currentPage() + 1) . '&' . $_SERVER['QUERY_STRING'] : null,
             'last' => $contents->lastPage() > 1 ? '/api/contents?page='.$contents->lastPage() . '&' . $_SERVER['QUERY_STRING'] : null
         ];
 

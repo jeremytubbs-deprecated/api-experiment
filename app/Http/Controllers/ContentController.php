@@ -14,11 +14,11 @@ class ContentController extends Controller
 {
     use \App\Traits\ApiQueryTrait;
 
-
     public function __construct(ContentTransformer $transformer)
     {
         $this->transformer = $transformer;
     }
+
     /**
      * Display a listing of the resource.
      *
@@ -27,7 +27,7 @@ class ContentController extends Controller
     public function index(Request $request)
     {
         $params = $request->all();
-        $results = $this->apiQuery('contents', $params);
+        $results = $this->apiQuery('\\App\\Models\\Content', 'contents', $params);
 
         if (isset($results['error'])) {
             return response()->json($results['error'], 400);
