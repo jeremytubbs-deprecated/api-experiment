@@ -15,8 +15,6 @@ trait ApiQueryTrait {
         $search_fields = config('api.' . $table . '.search_fields');
         $sort_fields = config('api.' . $table . '.sort_fields');
 
-        // $query = Content::select();
-        // $query = DB::table($table);
         $query = \App::make($model)->select();
 
         // check that all params are valid.
@@ -53,6 +51,7 @@ trait ApiQueryTrait {
                     }
                     // example: ?q=hello
                     // will always pass but may return 'no results'
+                    // TODO: multi field query
                     if (! is_array($value)) {
                         // foreach ($search_fields as $v) {
                         //     $query->orWhere($table.'.'.$v, 'LIKE', "%$value%");
