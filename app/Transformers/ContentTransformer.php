@@ -58,11 +58,23 @@ class ContentTransformer
             ];
         };
 
-        $links[] = [
-            'self' => '/api/contents?' . $_SERVER['QUERY_STRING'],
-            'next' => $contents->currentPage() < $contents->lastPage() ? '/api/contents?page='. ($contents->currentPage() + 1) . '&' . $_SERVER['QUERY_STRING'] : null,
-            'last' => $contents->lastPage() > 1 ? '/api/contents?page='.$contents->lastPage() . '&' . $_SERVER['QUERY_STRING'] : null
-        ];
+        if (strpos($_SERVER['QUERY_STRING'], 'page=') === false) {
+            $links[] = [
+                'self' => '/api/contents?' . $_SERVER['QUERY_STRING'],
+                'next' => $contents->currentPage() < $contents->lastPage() ? '/api/contents?page='. ($contents->currentPage() + 1) . '&' . $_SERVER['QUERY_STRING'] : null,
+                'last' => $contents->lastPage() > 1 ? '/api/contents?page='.$contents->lastPage() . '&' . $_SERVER['QUERY_STRING'] : null
+            ];
+        }
+
+        if (strpos($_SERVER['QUERY_STRING'], 'page=') !== false) {
+            $next_query_string = str_replace('page='.$contents->currentPage(), 'page='.($contents->currentPage()+1), $_SERVER['QUERY_STRING']);
+            $last_query_string = str_replace('page='.$contents->currentPage(), 'page='.$contents->lastPage(), $_SERVER['QUERY_STRING']);
+            $links[] = [
+                'self' => '/api/contents?' . $_SERVER['QUERY_STRING'],
+                'next' => $contents->currentPage() < $contents->lastPage() ? '/api/contents?' . $next_query_string  : null,
+                'last' => $contents->lastPage() > 1 ? '/api/contents?' . $last_query_string : null
+            ];
+        }
 
         return ['links' => $links, 'data' => $data];
     }

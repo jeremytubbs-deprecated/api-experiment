@@ -4,7 +4,7 @@ Api for content, content_type, users and categroies.
 
 
 ### JWT
-Setup auth token. Limit access to POST, PATCh, DELETE
+Setup auth token. Limit access to POST, PATCH, DELETE
 
 ### Accept Header
 Utilizing Accept header for API versioning `/App/Http/Middleware/ApiAcceptHeaderV1`.
